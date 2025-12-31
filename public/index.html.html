@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olimpo Lenhas | Orçamentos Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-green: #153026;
+            --oak-wood: #A06E3C;
+            --light-beige: #FAF5EE;
+            --gold: #F9B413;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Instrument Sans', sans-serif;
+            background-color: var(--light-beige);
+            color: var(--dark-green);
+        }
+
+        /* Hero Section */
+        header {
+            background: linear-gradient(rgba(21, 48, 38, 0.8), rgba(21, 48, 38, 0.8)), 
+                        url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            opacity: 0.9;
+        }
+
+        /* Form Container */
+        .container {
+            max-width: 800px;
+            margin: -50px auto 50px;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--gold);
+            color: var(--dark-green);
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #e5a300;
+            transform: translateY(-2px);
+        }
+
+        /* Result Area */
+        #resultado {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+            background-color: #f0f7f4;
+            border: 1px solid var(--dark-green);
+        }
+
+        .price {
+            font-size: 2rem;
+            color: var(--oak-wood);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Olimpo Lenhas</h1>
+    <p class="subtitle">Tecnologia ao serviço do aquecimento e limpeza de terrenos no Norte de Portugal.</p>
+</header>
+
+<div class="container">
+    <h2>Calculadora de Orçamento</h2>
+    <form id="orcamentoForm">
+        <div class="form-group">
+            <label>O que deseja?</label>
+            <select id="servico">
+                <option value="lenha">Entrega de Lenha (m³)</option>
+                <option value="limpeza">Limpeza de Terreno (m²)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Quantidade:</label>
+            <input type="number" id="quantidade" placeholder="Ex: 5" required>
+        </div>
+        <div class="form-group">
+            <label>Código Postal:</label>
+            <input type="text" id="cp" placeholder="4000-000" required>
+        </div>
+        <button type="submit" id="btnCalcular">Obter Preço Instantâneo</button>
+    </form>
+
+    <div id="resultado">
+        <p id="msg-aguarde">A calcular...</p>
+        <div id="preco-box" style="display:none;">
+            <p>O seu orçamento estimado é:</p>
+            <span class="price" id="valor-final">0.00€</span>
+            <p id="info-extra" style="font-size: 0.9rem; color: #666;"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('orcamentoForm');
+    const resDiv = document.getElementById('resultado');
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        
+        // Mudar visual para "carregando"
+        resDiv.style.display = 'block';
+        document.getElementById('msg-aguarde').style.display = 'block';
+        document.getElementById('preco-box').style.display = 'none';
+
+        const dados = {
+            servico: document.getElementById('servico').value,
+            quantidade: document.getElementById('quantidade').value,
+            cp: document.getElementById('cp').value
+        };
+
+        try {
+            // USAR O TEU LINK DO RENDER AQUI
+            const response = await fetch('https://olimpo-api-v2.onrender.com/api/orcamento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const data = await response.json();
+
+            // Mostrar resultado
+            document.getElementById('msg-aguarde').style.display = 'none';
+            document.getElementById('preco-box').style.display = 'block';
+            document.getElementById('valor-final').innerText = data.precoFinal + data.moeda;
+            document.getElementById('info-extra').innerText = data.mensagem;
+
+        } catch (error) {
+            alert("Erro ao ligar ao servidor. Verifique se a API no Render está ativa.");
+        }
+    };
+</script>
+
+</body>
+</html>
